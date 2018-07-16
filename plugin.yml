@@ -1,0 +1,8 @@
+main: com.gmail.certifieddev33.ShopGUI.ShopGUI
+name: ShopGUI
+version: 1.0.1
+author: TheeRock
+description: ShopGUI Plugin 
+depend: [Citizens]
+depend: [Essentials]
+commands:
