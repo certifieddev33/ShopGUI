@@ -41,6 +41,7 @@ public class ShopGUI extends JavaPlugin {
 	public void onRightClick(PlayerInteractEntityEvent event) {
 		boolean isCitizensNPC = event.getRightClicked().hasMetadata("NPC");
 		if(isCitizensNPC) {
+			NPC npc = CitizensAPI.getNPCRegistry().getNPC(event.getRightClicked());
 			NPC blacksmith = CitizensAPI.getNPCRegistry().getById(85);
 			NPC banker = CitizensAPI.getNPCRegistry().getById(75);
 			NPC mage = CitizensAPI.getNPCRegistry().getById(230);
@@ -49,6 +50,14 @@ public class ShopGUI extends JavaPlugin {
 			}else if(event.getRightClicked().equals(banker.getEntity())) {
 				createBankerInventory(event.getPlayer());
 			}else if(event.getRightClicked().equals(mage.getEntity())) {
+				createMageInventory(event.getPlayer());
+			}
+			//for testing purposes
+			if(npc.getName().equals("Blacksmith")) {
+				createSmithInventory(event.getPlayer());
+			}else if(npc.getName().equals("Banker")) {
+				createBankerInventory(event.getPlayer());
+			}else if(npc.getName().equals("Mage")) {
 				createMageInventory(event.getPlayer());
 			}
 		}
