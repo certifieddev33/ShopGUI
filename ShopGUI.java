@@ -67,11 +67,17 @@ public class ShopGUI extends JavaPlugin implements Listener {
 	public void createMageInventory(Player player) {
 		Inventory mageShop = Bukkit.createInventory(player, 27, "MageShop");
 		ItemStack potion = new ItemStack(Material.POTION);
-		//PotionEffect potionEffect = new PotionEffect(PotionEffectType.HEAL, 0, 0);
 		PotionMeta potionMeta = (PotionMeta) potion.getItemMeta();
 		potionMeta.addCustomEffect(PotionEffectType.HEAL.createEffect(1, 5), true);
+		potionMeta.setDisplayName(ChatColor.GREEN + "Small Health Potion");
 		potion.setItemMeta(potionMeta);
+		ItemStack potion2 = new ItemStack(Material.POTION);
+		PotionMeta potionMeta2 = (PotionMeta) potion2.getItemMeta();
+		potionMeta2.addCustomEffect(PotionEffectType.HEAL.createEffect(1, 10), true);
+		potionMeta2.setDisplayName(ChatColor.GREEN + "Medium Health Potion");
+		potion2.setItemMeta(potionMeta2);
 		mageShop.setItem(13, potion);
+		mageShop.setItem(22, potion2);
 		player.openInventory(mageShop);
 	}
 	public void createSmithInventory(Player player) {
@@ -138,6 +144,22 @@ public class ShopGUI extends JavaPlugin implements Listener {
 						player.getInventory().remove(item);
 						break;
 					}
+				}
+			}
+		}else if(event.getClickedInventory().getName().equals("Mage")) {
+			if(event.getCurrentItem().getItemMeta().getDisplayName().equals("Small Health Potion")) {
+				if(ess.getUser(player).getMoney().compareTo(new BigDecimal(25))>-1){
+					ess.getUser(player).takeMoney(new BigDecimal(25));
+					player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You just bought a " + ChatColor.GRAY + event.getCurrentItem().getItemMeta().getDisplayName() + "!");
+				}else {
+					player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You have insufficient funds.");
+				}
+			}else if(event.getCurrentItem().getItemMeta().getDisplayName().equals("Medium Health Potion")) {
+				if(ess.getUser(player).getMoney().compareTo(new BigDecimal(50))>-1){
+					ess.getUser(player).takeMoney(new BigDecimal(50));
+					player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You just bought a " + ChatColor.GRAY + event.getCurrentItem().getItemMeta().getDisplayName() + "!");
+				}else {
+					player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You have insufficient funds.");
 				}
 			}
 		}
