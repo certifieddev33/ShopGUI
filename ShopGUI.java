@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -27,11 +28,12 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.ess3.api.*;
 
-public class ShopGUI extends JavaPlugin {
+public class ShopGUI extends JavaPlugin implements Listener {
 	//TODO implement banker and mage GUI
 	Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 	@Override
 	public void onEnable() {
+		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 	}
 	@Override
 	public void onDisable() {
