@@ -2,6 +2,7 @@ package com.gmail.certifieddev33.ShopGUI;
 
 import java.math.BigDecimal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.bukkit.Bukkit;
@@ -14,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +32,7 @@ import net.ess3.api.*;
 
 public class ShopGUI extends JavaPlugin implements Listener {
 	//TODO implement banker and mage GUI
+	ArrayList<Player> playerList = new ArrayList<>();
 	Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 	@Override
 	public void onEnable() {
@@ -44,7 +47,7 @@ public class ShopGUI extends JavaPlugin implements Listener {
 		boolean isCitizensNPC = event.getRightClicked().hasMetadata("NPC");
 		if(isCitizensNPC) {
 			NPC npc = CitizensAPI.getNPCRegistry().getNPC(event.getRightClicked());
-			NPC blacksmith = CitizensAPI.getNPCRegistry().getById(85);
+			/*NPC blacksmith = CitizensAPI.getNPCRegistry().getById(85);
 			NPC banker = CitizensAPI.getNPCRegistry().getById(75);
 			NPC mage = CitizensAPI.getNPCRegistry().getById(230);
 			if(event.getRightClicked().equals(blacksmith.getEntity())) {
@@ -53,14 +56,17 @@ public class ShopGUI extends JavaPlugin implements Listener {
 				createBankerInventory(event.getPlayer());
 			}else if(event.getRightClicked().equals(mage.getEntity())) {
 				createMageInventory(event.getPlayer());
-			}
+			}*/
 			//for testing purposes
 			if(npc.getName().equals("Blacksmith")) {
 				createSmithInventory(event.getPlayer());
+				playerList.add(event.getPlayer());
 			}else if(npc.getName().equals("Banker")) {
 				createBankerInventory(event.getPlayer());
+				playerList.add(event.getPlayer());
 			}else if(npc.getName().equals("Mage")) {
 				createMageInventory(event.getPlayer());
+				playerList.add(event.getPlayer());
 			}
 		}
 	}
@@ -107,16 +113,16 @@ public class ShopGUI extends JavaPlugin implements Listener {
 		chippedDagger.setDurability((short) 390);
 		chippedDagger.setItemMeta(dagMeta);
 		smithShop.setItem(10, chippedSword);
-		smithShop.setItem(12, chippedSword);
-		smithShop.setItem(14, chippedSword);
-		smithShop.setItem(16, chippedSword);
+		smithShop.setItem(12, splintBow);
+		smithShop.setItem(14, splintStaff);
+		smithShop.setItem(16, chippedDagger);
 		player.openInventory(smithShop);
 	}
 	public void createBankerInventory(Player player) {
 		Inventory bank = Bukkit.createInventory(player, 27, "Bank"); 
 		ItemStack crystal = new ItemStack(Material.PRISMARINE_CRYSTALS);
 		ItemMeta crystalMeta = crystal.getItemMeta();
-		crystalMeta.setDisplayName(ChatColor.BLUE + "" + ChatColor.BOLD + "Alteria");
+		crystalMeta.setDisplayName(ChatColor.BLUE + "Alteria");
 		crystal.setItemMeta(crystalMeta);
 		bank.setItem(13, crystal);
 		player.openInventory(bank);
@@ -124,42 +130,61 @@ public class ShopGUI extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onClick(InventoryClickEvent event) throws MaxMoneyException {
 		Player player = (Player) event.getWhoClicked();
-		if(event.getClickedInventory().getName().equals("SmithShop")) {
-			if(event.getCurrentItem().getItemMeta().getDisplayName().equals("Chipped Sword") ||
-					event.getCurrentItem().getItemMeta().getDisplayName().equals("Splintered Bow") ||
-					event.getCurrentItem().getItemMeta().getDisplayName().equals("Splintered Staff") ||
-					event.getCurrentItem().getItemMeta().getDisplayName().equals("Chipped Dagger")) {
+		if(event.getClickedInventory()==null) {
+			return;
+		}
+		if(event.getClickedInventory().getTitle().equals("SmithShop")) {
+			if(event.getSlot()!=10 && event.getSlot()!=12 && event.getSlot()!=14 && event.getSlot()!=16) {
+				return;
+			}else if(event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Chipped Sword") ||
+					event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Splintered Bow") ||
+					event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Splintered Staff") ||
+					event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Chipped Dagger")) {
 					if(ess.getUser(player).getMoney().compareTo(new BigDecimal(25))>-1){
 						ess.getUser(player).takeMoney(new BigDecimal(25));
 						player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You just bought a " + ChatColor.GRAY + event.getCurrentItem().getItemMeta().getDisplayName() + "!");
 					}else {
 						player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You have insufficient funds.");
+						event.setCancelled(true);
 					}
 			}
-		}else if(event.getClickedInventory().getName().equals("Bank")) {
-			if(event.getCurrentItem().getItemMeta().getDisplayName().equals("Alteria")) {
-				for(ItemStack item : player.getInventory().getContents()) {
-					if(item.equals(new ItemStack(Material.PRISMARINE_CRYSTALS))) {
+		}else if(event.getClickedInventory().getTitle().equals("Bank")) {
+			if(event.getSlot()!=13) {
+				return;
+			}else if(event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.BLUE + "Alteria")) {
+				for(int i = 1; i<=64;) {
+					if(player.getInventory().containsAtLeast(new ItemStack(Material.PRISMARINE_CRYSTALS), i)) {
+						player.getInventory().removeItem(new ItemStack(Material.PRISMARINE_CRYSTALS, i));
 						ess.getUser(player).setMoney(ess.getUser(player).getMoney().add(new BigDecimal(5)));
-						player.getInventory().remove(item);
+						player.sendMessage(ChatColor.GREEN + "$5 has been added to your inventory.");
+						event.setCancelled(true);
 						break;
-					}
+						}else {
+							player.sendMessage(ChatColor.RED + "You do not have any crystals to exchange.");
+							event.setCancelled(true);
+							break;
+						}
 				}
 			}
-		}else if(event.getClickedInventory().getName().equals("Mage")) {
-			if(event.getCurrentItem().getItemMeta().getDisplayName().equals("Small Health Potion")) {
+		}else if(event.getClickedInventory().getTitle().equals("MageShop")) {
+			if(event.getSlot()!=13 && event.getSlot()!=22) {
+				return;
+			}
+			if(event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Small Health Potion")) {
 				if(ess.getUser(player).getMoney().compareTo(new BigDecimal(25))>-1){
 					ess.getUser(player).takeMoney(new BigDecimal(25));
 					player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You just bought a " + ChatColor.GRAY + event.getCurrentItem().getItemMeta().getDisplayName() + "!");
 				}else {
 					player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You have insufficient funds.");
+					event.setCancelled(true);
 				}
-			}else if(event.getCurrentItem().getItemMeta().getDisplayName().equals("Medium Health Potion")) {
+			}else if(event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Medium Health Potion")) {
 				if(ess.getUser(player).getMoney().compareTo(new BigDecimal(50))>-1){
 					ess.getUser(player).takeMoney(new BigDecimal(50));
 					player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You just bought a " + ChatColor.GRAY + event.getCurrentItem().getItemMeta().getDisplayName() + "!");
 				}else {
 					player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You have insufficient funds.");
+					event.setCancelled(true);
 				}
 			}
 		}
@@ -168,10 +193,22 @@ public class ShopGUI extends JavaPlugin implements Listener {
 	@EventHandler 
 	public void onDrag(InventoryDragEvent event) {
 		Player player = (Player) event.getWhoClicked();
-		if(event.getInventory()!=player.getInventory()) {
-			event.setCancelled(true);
+		for(Player p : playerList) {
+			if(p.getUniqueId().equals(player.getUniqueId())) {
+				event.setCancelled(true);
+			}
 		}
 		player.updateInventory();
+	}
+	@EventHandler
+	public void onDrop(PlayerDropItemEvent event) {
+		for(Player p : playerList) {
+			if(event.getPlayer().getUniqueId().equals(p.getUniqueId())) {
+				playerList.remove(p);
+				event.setCancelled(true);
+				break;
+			}
+		}
 	}
 	@EventHandler
 	public void onDamage(EntityDamageEvent event) {
