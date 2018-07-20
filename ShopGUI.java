@@ -14,9 +14,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -33,7 +30,6 @@ import net.ess3.api.*;
 
 public class ShopGUI extends JavaPlugin implements Listener {
 	//TODO implement banker and mage GUI
-	ArrayList<Player> playerList = new ArrayList<>();
 	Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 	@Override
 	public void onEnable() {
@@ -197,16 +193,6 @@ public class ShopGUI extends JavaPlugin implements Listener {
 		}
 		player.updateInventory();
 	}
-	/*@EventHandler 
-	public void onDrag(InventoryDragEvent event) {
-		Player player = (Player) event.getWhoClicked();
-		for(Player p : playerList) {
-			if(p.equals(player)) {
-				event.setCancelled(true);
-			}
-		}
-		player.updateInventory();
-	}*/
 	@EventHandler
 	public void onDamage(EntityDamageEvent event) {
 		if(event.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK) && event.getEntityType().equals(EntityType.PLAYER)) {
