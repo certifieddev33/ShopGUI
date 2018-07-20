@@ -16,6 +16,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -60,13 +61,10 @@ public class ShopGUI extends JavaPlugin implements Listener {
 			//for testing purposes
 			if(npc.getName().equals("Blacksmith")) {
 				createSmithInventory(event.getPlayer());
-				playerList.add(event.getPlayer());
 			}else if(npc.getName().equals("Banker")) {
 				createBankerInventory(event.getPlayer());
-				playerList.add(event.getPlayer());
 			}else if(npc.getName().equals("Mage")) {
 				createMageInventory(event.getPlayer());
-				playerList.add(event.getPlayer());
 			}
 		}
 	}
@@ -133,6 +131,9 @@ public class ShopGUI extends JavaPlugin implements Listener {
 		if(event.getClickedInventory()==null) {
 			return;
 		}
+		if(event.getClickedInventory().equals(player.getInventory())) {
+			
+		}
 		if(event.getClickedInventory().getTitle().equals("SmithShop")) {
 			if(event.getSlot()!=10 && event.getSlot()!=12 && event.getSlot()!=14 && event.getSlot()!=16) {
 				return;
@@ -143,6 +144,8 @@ public class ShopGUI extends JavaPlugin implements Listener {
 					if(ess.getUser(player).getMoney().compareTo(new BigDecimal(25))>-1){
 						ess.getUser(player).takeMoney(new BigDecimal(25));
 						player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You just bought a " + ChatColor.GRAY + event.getCurrentItem().getItemMeta().getDisplayName() + "!");
+						player.getInventory().addItem(event.getCurrentItem());
+						event.setCancelled(true);
 					}else {
 						player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You have insufficient funds.");
 						event.setCancelled(true);
@@ -174,6 +177,8 @@ public class ShopGUI extends JavaPlugin implements Listener {
 				if(ess.getUser(player).getMoney().compareTo(new BigDecimal(25))>-1){
 					ess.getUser(player).takeMoney(new BigDecimal(25));
 					player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You just bought a " + ChatColor.GRAY + event.getCurrentItem().getItemMeta().getDisplayName() + "!");
+					player.getInventory().addItem(event.getCurrentItem());
+					event.setCancelled(true);
 				}else {
 					player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You have insufficient funds.");
 					event.setCancelled(true);
@@ -182,6 +187,8 @@ public class ShopGUI extends JavaPlugin implements Listener {
 				if(ess.getUser(player).getMoney().compareTo(new BigDecimal(50))>-1){
 					ess.getUser(player).takeMoney(new BigDecimal(50));
 					player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You just bought a " + ChatColor.GRAY + event.getCurrentItem().getItemMeta().getDisplayName() + "!");
+					player.getInventory().addItem(event.getCurrentItem());
+					event.setCancelled(true);
 				}else {
 					player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You have insufficient funds.");
 					event.setCancelled(true);
@@ -190,26 +197,16 @@ public class ShopGUI extends JavaPlugin implements Listener {
 		}
 		player.updateInventory();
 	}
-	@EventHandler 
+	/*@EventHandler 
 	public void onDrag(InventoryDragEvent event) {
 		Player player = (Player) event.getWhoClicked();
 		for(Player p : playerList) {
-			if(p.getUniqueId().equals(player.getUniqueId())) {
+			if(p.equals(player)) {
 				event.setCancelled(true);
 			}
 		}
 		player.updateInventory();
-	}
-	@EventHandler
-	public void onDrop(PlayerDropItemEvent event) {
-		for(Player p : playerList) {
-			if(event.getPlayer().getUniqueId().equals(p.getUniqueId())) {
-				playerList.remove(p);
-				event.setCancelled(true);
-				break;
-			}
-		}
-	}
+	}*/
 	@EventHandler
 	public void onDamage(EntityDamageEvent event) {
 		if(event.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK) && event.getEntityType().equals(EntityType.PLAYER)) {
@@ -222,6 +219,8 @@ public class ShopGUI extends JavaPlugin implements Listener {
 				event.setDamage(0);
 			}else if(player.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("Chipped Sowrd")) {
 				event.setDamage(4);
+			}else {
+				return;
 			}
 		}
 	}
